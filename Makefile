@@ -6,7 +6,7 @@
 #    By: aielo <aielo@student.42berlin.de>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/05 13:32:20 by aielo             #+#    #+#              #
-#    Updated: 2026/09/21 09:52:17 by aielo            ###   ########.fr        #
+#    Updated: 2026/10/09 13:56:31 by foogungb         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,6 @@ INCL_DIR	= includes
 CLASS_SRC	= $(CLASS_DIR)/
 				
 SOURCES		= main.cpp \
-			$(CLASS_SRC)
 
 # Objects
 OBJECTS		= $(SOURCES:%.cpp=$(OBJ_DIR)/%.o)
