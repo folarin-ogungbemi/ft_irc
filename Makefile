@@ -22,7 +22,7 @@ INCL_DIR	= includes
 # Sources
 CLASS_SRC	= $(CLASS_DIR)/
 				
-SOURCES		= main.cpp \
+SOURCES		= main.cpp classes/Utils.cpp classes/Client.cpp\
 
 # Objects
 OBJECTS		= $(SOURCES:%.cpp=$(OBJ_DIR)/%.o)
