@@ -12,5 +12,6 @@ enum	ErrorType
 };
 
 void	error(ErrorType type, const std::string& msg);
+int	convert_to_int( const std::string& s );
 
 #endif	//UTILS_HPP
