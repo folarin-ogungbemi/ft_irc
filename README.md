@@ -2,6 +2,21 @@
 
 # ft_irc — IRC Server
 
+## Table of Contents
+
+- [Description](#description)
+  - [Technical Overview](#technical-overview)
+- [Instructions](#instructions)
+  - [Requirements](#requirements)
+  - [Compilation](#compilation)
+  - [Execution](#execution)
+  - [Makefile Commands](#makefile-commands)
+- [Resources](#resources)
+  - [Documentation](#documentation)
+  - [AI Usage](#ai-usage)
+- [Project Status](#project-status)
+- [Authors](#authors)
+
 ## Description
 
 **ft_irc** is a C++ project focused on implementing an Internet Relay Chat (IRC) server.
