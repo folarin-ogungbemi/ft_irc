@@ -17,8 +17,8 @@ public:
 	int	getFD( void ) const;
 	void	setUsername( const std::string& username );
 	void	setNickname( const std::string& nickname );
-	const std::string&	setUsername( void ) const;
-	const std::string&	setNickname( void ) const;
+	const std::string&	getUsername( void ) const;
+	const std::string&	getNickname( void ) const;
 };
 
 #endif // CLIENT.HPP

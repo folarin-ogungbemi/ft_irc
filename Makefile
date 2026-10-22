@@ -29,6 +29,7 @@ SOURCES		= 	main.cpp \
 			classes/Client.cpp\
 
 TEST_SOURCES	= 	tests/test_client.cpp\
+			classes/Utils.cpp \
 			classes/Client.cpp\
 
 # Objects
