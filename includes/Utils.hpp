@@ -8,7 +8,8 @@ enum	ErrorType
 	INPUT,
 	VALIDATION,
 	NETWORK,
-	SYSTEM
+	SYSTEM,
+	TEST
 };
 
 void	error(ErrorType type, const std::string& msg);
