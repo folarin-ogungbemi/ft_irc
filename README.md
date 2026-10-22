@@ -6,6 +6,8 @@
 
 - [Description](#description)
   - [Technical Overview](#technical-overview)
+    - [IRC Server Overview](#irc-server-overview)
+    - [Functions Overview](#functions-overview)
 - [Instructions](#instructions)
   - [Requirements](#requirements)
   - [Compilation](#compilation)
@@ -34,6 +36,14 @@ The project also explores important C++ concepts, including object-oriented desi
 - **Protocol:** Internet Relay Chat (IRC)
 - **Networking:** TCP/IP sockets
 - **Build system:** Makefile
+
+#### IRC Server Overview
+
+- [IRC Server Markdown file](42_docs/HowIrcServerWorks.md)
+
+#### Functions Overview
+
+- [Functions Explanation Markdown file](42_docs/FunctionsList.md)
 
 ## Instructions
 
