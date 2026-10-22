@@ -23,6 +23,9 @@ void	error(ErrorType type, const std::string& msg)
 	case SYSTEM:
 	    label = "SYSTEM ERROR";
 	    break;
+	case TEST:
+	    label = "TEST ERROR";
+	    break;
 	default:
 	    label = "ERROR";
 	    break;

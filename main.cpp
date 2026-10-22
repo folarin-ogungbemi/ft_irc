@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <sys/socket.h>
 #include "includes/Client.hpp"
 #include "includes/Utils.hpp"
 
@@ -25,7 +26,7 @@ int	main(int ac, char **av)
 			return (EXIT_FAILURE);
 		}
 		std::cout << "Port: " << port <<  std::endl;
-		Client	c(3);
+		Client	c(5);
 		std::cout << "Socket FD: " << c.getFD() << std::endl;
 	} catch (const std::exception& e) {
 		error(VALIDATION, e.what());
