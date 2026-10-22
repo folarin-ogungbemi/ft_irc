@@ -13,19 +13,19 @@ int	main(int ac, char **av)
 	try
 	{
 		const int	port = convert_to_int(av[1]);
+		const std::string	passwd = av[2];
 		if (port < 1 || port > 65535)
 		{
 			error(VALIDATION, "Port must be between 1 - 65535");
 			return (EXIT_FAILURE);
 		}
-		const std::string	passwd = av[2];
 		if (passwd.empty())
 		{
 			error(VALIDATION, "Password cannot be empty");
 			return (EXIT_FAILURE);
 		}
 		std::cout << "Port: " << port <<  std::endl;
-		Client	c(port);
+		Client	c(3);
 		std::cout << "Socket FD: " << c.getFD() << std::endl;
 	} catch (const std::exception& e) {
 		error(VALIDATION, e.what());

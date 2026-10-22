@@ -12,21 +12,29 @@
 
 # Name
 NAME		= ircserv
+TEST_NAME	= irctest
 
 # Directories
 
 OBJ_DIR		= obj
 CLASS_DIR	= classes
 INCL_DIR	= includes
+TEST_DIR	= tests
 
 # Sources
 CLASS_SRC	= $(CLASS_DIR)/
 				
-SOURCES		= main.cpp classes/Utils.cpp classes/Client.cpp\
+SOURCES		= 	main.cpp \
+			classes/Utils.cpp \
+			classes/Client.cpp\
+
+TEST_SOURCES	= 	tests/test_client.cpp\
+			classes/Client.cpp\
 
 # Objects
 OBJECTS		= $(SOURCES:%.cpp=$(OBJ_DIR)/%.o)
-DEP		= $(OBJECTS:.o=.d)
+TEST_OBJECTS    = $(TEST_SOURCES:%.cpp=$(OBJ_DIR)/%.o)
+DEP		= $(OBJECTS:.o=.d) $(TEST_OBJECTS:.o=.d)
 
 # Compiler
 CC		= c++
@@ -44,6 +52,12 @@ $(OBJ_DIR):
 $(NAME): $(OBJECTS)
 	$(CC) $(CPP_FLAGS) $(OBJECTS) -o $@
 
+$(TEST_NAME): $(TEST_OBJECTS)
+	$(CC) $(CPP_FLAGS) $(TEST_OBJECTS) -o $@
+
+test: $(TEST_NAME)
+	./$(TEST_NAME)
+
 $(OBJ_DIR)/%.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CC) $(CPP_FLAGS) -c $< -o $@
@@ -52,7 +66,7 @@ clean:
 	rm -rf $(OBJ_DIR)
 
 fclean: clean
-	rm -f $(NAME)
+	rm -f $(NAME) $(TEST_NAME)
 
 re: fclean all
 
