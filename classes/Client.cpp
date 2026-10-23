@@ -2,7 +2,6 @@
 #include <iostream>
 #include "Client.hpp"
 
-Client::Client(){}
 Client::Client(int fd)
 {
 	_fd = fd;
@@ -12,18 +11,7 @@ Client::~Client()
 {
 	if (_fd >= 0)
 		close(_fd);
-}
-
-Client::Client( const Client& rhs )
-{
-	*this = rhs;
-}
-
-Client&	Client::operator=( const Client& rhs )
-{
-	if (this != &rhs)
-		this->_fd = rhs._fd;
-	return (*this);
+	_fd = -1;
 }
 
 int	Client::getFD( void ) const
