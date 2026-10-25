@@ -8,10 +8,11 @@ private:
 	std::string	_username;
 	std::string	_nickname;
 	int	_fd;
+
+	Client( void );
 	Client( const Client& rhs );	
 	Client&	operator=( const Client& rhs );	
 public:
-	Client( void );
 	Client(int fd);
 	~Client();
 	int	getFD( void ) const;
