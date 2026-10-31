@@ -22,6 +22,7 @@ INCL_DIR	= includes
 # Sources
 CLASS_SRC		= $(CLASS_DIR)/Utils.cpp \
 					$(CLASS_DIR)/Client.cpp \
+					$(CLASS_DIR)/Parser.cpp \
 					$(CLASS_DIR)/Server.cpp	
 SOURCES			= main.cpp \
 					$(CLASS_SRC)

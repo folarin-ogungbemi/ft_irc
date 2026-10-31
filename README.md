@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by <foogungb> <aielo>*
+_This project has been created as part of the 42 curriculum by <foogungb> <aielo>_
 
 # ft_irc — IRC Server
 
