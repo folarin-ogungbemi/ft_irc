@@ -5,9 +5,7 @@ _This project has been created as part of the 42 curriculum by <foogungb> <aielo
 ## Table of Contents
 
 - [Description](#description)
-  - [Technical Overview](#technical-overview)
-    - [IRC Server Overview](#irc-server-overview)
-    - [Functions Overview](#functions-overview)
+	- [Technical Overview](#technical-overview)
 - [Instructions](#instructions)
   - [Requirements](#requirements)
   - [Compilation](#compilation)
@@ -17,6 +15,7 @@ _This project has been created as part of the 42 curriculum by <foogungb> <aielo
   - [Documentation](#documentation)
   - [AI Usage](#ai-usage)
 - [Project Status](#project-status)
+- [Additional Documentation](#additional-documentation)
 - [Authors](#authors)
 
 ## Description
@@ -36,14 +35,6 @@ The project also explores important C++ concepts, including object-oriented desi
 - **Protocol:** Internet Relay Chat (IRC)
 - **Networking:** TCP/IP sockets
 - **Build system:** Makefile
-
-#### IRC Server Overview
-
-- [IRC Server Markdown file](42_docs/HowIrcServerWorks.md)
-
-#### Functions Overview
-
-- [Functions Explanation Markdown file](42_docs/FunctionsList.md)
 
 ## Instructions
 
@@ -145,6 +136,12 @@ AI-generated suggestions were used as guidance rather than treated as authoritat
 ## Project Status
 
 This project is under development. Implemented features and supported IRC commands will be documented here as they are completed and tested.
+
+## Additional Documentation
+
+- [How IRC server works](additional_docs/HowIrcServerWorks.md)
+- [IRC Protocol](additional_docs/IrcProtocol.md)
+- [IRC Layout](additional_docs/IrcLayout.md)
 
 ## Authors
 
