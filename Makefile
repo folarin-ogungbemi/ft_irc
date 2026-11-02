@@ -23,7 +23,8 @@ INCL_DIR	= includes
 CLASS_SRC		= $(CLASS_DIR)/Utils.cpp \
 					$(CLASS_DIR)/Client.cpp \
 					$(CLASS_DIR)/Server.cpp	\
-					$(CLASS_DIR)/Channel.cpp
+					$(CLASS_DIR)/Channel.cpp \
+					$(CLASS_DIR)/Parser.cpp
 SOURCES			= main.cpp \
 					$(CLASS_SRC)
 
