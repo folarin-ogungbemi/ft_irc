@@ -6,7 +6,7 @@
 #    By: aielo <aielo@student.42berlin.de>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/05 13:32:20 by aielo             #+#    #+#              #
-#    Updated: 2026/10/09 13:56:31 by foogungb         ###   ########.fr        #
+#    Updated: 2026/10/23 18:19:51 by aielo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,19 +20,22 @@ CLASS_DIR	= classes
 INCL_DIR	= includes
 
 # Sources
-CLASS_SRC	= $(CLASS_DIR)/
-				
-SOURCES		= main.cpp \
+CLASS_SRC		= $(CLASS_DIR)/Utils.cpp \
+					$(CLASS_DIR)/Client.cpp \
+					$(CLASS_DIR)/Parser.cpp \
+					$(CLASS_DIR)/Server.cpp	
+SOURCES			= main.cpp \
+					$(CLASS_SRC)
 
 # Objects
-OBJECTS		= $(SOURCES:%.cpp=$(OBJ_DIR)/%.o)
-DEP		= $(OBJECTS:.o=.d)
+OBJECTS			= $(SOURCES:%.cpp=$(OBJ_DIR)/%.o)
+DEP				= $(OBJECTS:.o=.d)
 
 # Compiler
-CC		= c++
+CC			= c++
 CFLAGS		= -Wall -Wextra -Werror -Wshadow -fsanitize=undefined
 CEXTRA_VER	= -std=c++98
-CEXTRA_INC 	= -I$(INCL_DIR) -I. -MMD -MP
+CEXTRA_INC	= -I$(INCL_DIR) -I. -MMD -MP
 CPP_FLAGS	= $(CFLAGS) $(CEXTRA_VER) $(CEXTRA_INC)
 
 # Rules
@@ -69,3 +72,4 @@ valre: re val
 .PHONY: all clean fclean re val valre
 
 -include $(DEP)
+-include tests/tests.mk
