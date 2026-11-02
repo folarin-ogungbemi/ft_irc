@@ -6,7 +6,7 @@
 #    By: aielo <aielo@student.42berlin.de>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/05 13:32:20 by aielo             #+#    #+#              #
-#    Updated: 2026/10/23 18:19:51 by aielo            ###   ########.fr        #
+#    Updated: 2026/10/30 16:24:35 by aielo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,8 @@ INCL_DIR	= includes
 # Sources
 CLASS_SRC		= $(CLASS_DIR)/Utils.cpp \
 					$(CLASS_DIR)/Client.cpp \
-					$(CLASS_DIR)/Server.cpp	
+					$(CLASS_DIR)/Server.cpp	\
+					$(CLASS_DIR)/Channel.cpp
 SOURCES			= main.cpp \
 					$(CLASS_SRC)
 
