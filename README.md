@@ -1,4 +1,4 @@
-_This project has been created as part of the 42 curriculum by <foogungb> <aielo>_
+_This project has been created as part of the 42 curriculum by foogungb and aielo_
 
 # ft_irc — IRC Server
 
@@ -145,4 +145,5 @@ This project is under development. Implemented features and supported IRC comman
 
 ## Authors
 
-- <foogungb> <aielo>
+- [foogungb](https://github.com/folarin-ogungbemi)
+- [aielo](https://github.com/jqrsound)
