@@ -54,6 +54,11 @@ bool	Client::setNickname( const std::string& nickname )
 	return (true);
 }
 
+void	Client::setRealName( const std::string& realName )
+{
+	_realName = realName;
+}
+
 void	Client::setPasswordAccepted( bool accepted )
 {
 	_passwordAccepted = accepted;
@@ -72,6 +77,11 @@ const std::string&	Client::getUsername( void ) const
 const std::string&	Client::getNickname( void ) const
 {
 	return (_nickname);
+}
+
+const std::string&	Client::getRealName( void ) const
+{
+	return (_realName);
 }
 
 bool	Client::isPasswordAccepted( void ) const
