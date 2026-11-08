@@ -526,6 +526,7 @@ void	Server::_registerCommands(void)
 	this->_registerCommand("QUIT", &Server::_cmdQuit, false);
 	this->_registerCommand("JOIN", &Server::_cmdJoin, true);
 	this->_registerCommand("PRIVMSG", &Server::_cmdPrivmsg, true);
+	this->_registerCommand("TOPIC", &Server::_cmdTopic, true);
 	this->_registerCommand("KICK", &Server::_cmdKick, true);
 	this->_registerCommand("INVITE", &Server::_cmdInvite, true);
 }
@@ -750,6 +751,50 @@ void	Server::_cmdJoin(int clientFd, const IrcMessage& message)
 	for (size_t i = 0; i < channelNames.size(); ++i)
 		this->_joinChannel(clientFd, channelNames[i],
 			i < keys.size() ? keys[i] : "");
+}
+
+void	Server::_cmdTopic(int clientFd, const IrcMessage& message)
+{
+	Channel*	channel;
+
+	if (message.params.empty())
+	{
+		this->_sendNumeric(clientFd, 461, "TOPIC :Not enough parameters");
+		return ;
+	}
+	channel = this->_findChannel(message.params[0]);
+	if (!channel)
+	{
+		this->_sendNumeric(clientFd, 403,
+			message.params[0] + " :No such channel");
+		return ;
+	}
+	if (message.params.size() == 1)
+	{
+		if (channel->getTopic().empty())
+			this->_sendNumeric(clientFd, 331,
+				channel->getName() + " :No topic is set");
+		else
+			this->_sendNumeric(clientFd, 332,
+				channel->getName() + " :" + channel->getTopic());
+		return ;
+	}
+	if (!channel->isMember(clientFd))
+	{
+		this->_sendNumeric(clientFd, 442,
+			channel->getName() + " :You're not on that channel");
+		return ;
+	}
+	if (channel->isTopicRestricted() && !channel->isOperator(clientFd))
+	{
+		this->_sendNumeric(clientFd, 482,
+			channel->getName() + " :You're not channel operator");
+		return ;
+	}
+
+	channel->setTopic(message.params[1]);
+	this->_broadcastToChannel(*channel, ":" + this->_hostmaskOf(clientFd)
+		+ " TOPIC " + channel->getName() + " :" + channel->getTopic());
 }
 
 void	Server::_cmdKick(int clientFd, const IrcMessage& message)
