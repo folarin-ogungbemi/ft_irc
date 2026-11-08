@@ -527,6 +527,7 @@ void	Server::_registerCommands(void)
 	this->_registerCommand("JOIN", &Server::_cmdJoin, true);
 	this->_registerCommand("PRIVMSG", &Server::_cmdPrivmsg, true);
 	this->_registerCommand("KICK", &Server::_cmdKick, true);
+	this->_registerCommand("INVITE", &Server::_cmdInvite, true);
 }
 
 void	Server::_registerCommand(const std::string& name, CommandHandler handler, bool requiresRegistration)
@@ -797,6 +798,52 @@ void	Server::_cmdKick(int clientFd, const IrcMessage& message)
 	channel->removeMember(targetFd);
 	if (channel->isEmpty())
 		this->_removeChannel(channel->getName());
+}
+
+void	Server::_cmdInvite(int clientFd, const IrcMessage& message)
+{
+	Channel*	channel;
+	int			targetFd;
+
+	if (message.params.size() < 2)
+	{
+		this->_sendNumeric(clientFd, 461, "INVITE :Not enough parameters");
+		return ;
+	}
+	targetFd = this->_findClientByNickname(message.params[0]);
+	if (targetFd == -1)
+	{
+		this->_sendNumeric(clientFd, 401,
+			message.params[0] + " :No such nick");
+		return ;
+	}
+	channel = this->_findChannel(message.params[1]);
+	if (channel && !channel->isMember(clientFd))
+	{
+		this->_sendNumeric(clientFd, 442,
+			channel->getName() + " :You're not on that channel");
+		return ;
+	}
+	if (channel && channel->isMember(targetFd))
+	{
+		this->_sendNumeric(clientFd, 443, this->_nicknameOf(targetFd) + " "
+			+ channel->getName() + " :is already on channel");
+		return ;
+	}
+	if (channel && channel->isInviteOnly() && !channel->isOperator(clientFd))
+	{
+		this->_sendNumeric(clientFd, 482,
+			channel->getName() + " :You're not channel operator");
+		return ;
+	}
+
+	if (channel)
+		channel->invite(targetFd);
+	this->_sendNumeric(clientFd, 341, this->_nicknameOf(targetFd) + " "
+		+ message.params[1]);
+	this->_queueMessage(targetFd, ":" + this->_hostmaskOf(clientFd)
+		+ " INVITE " + this->_nicknameOf(targetFd) + " :"
+		+ message.params[1]);
 }
 
 void	Server::_joinChannel(int clientFd, const std::string& channelName,
