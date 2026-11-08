@@ -111,6 +111,7 @@ private:
 	void		_cmdPrivmsg(int clientFd, const IrcMessage& message);
 	int			_findClientByNickname(const std::string& nickname) const;	/* fd or -1 */
 //	ADD new commands here
+	void		_cmdKick(int clientFd, const IrcMessage& message);
 public:
 	Server(int port, const std::string& password);
 	~Server();

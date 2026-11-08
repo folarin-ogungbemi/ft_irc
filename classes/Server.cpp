@@ -526,6 +526,7 @@ void	Server::_registerCommands(void)
 	this->_registerCommand("QUIT", &Server::_cmdQuit, false);
 	this->_registerCommand("JOIN", &Server::_cmdJoin, true);
 	this->_registerCommand("PRIVMSG", &Server::_cmdPrivmsg, true);
+	this->_registerCommand("KICK", &Server::_cmdKick, true);
 }
 
 void	Server::_registerCommand(const std::string& name, CommandHandler handler, bool requiresRegistration)
@@ -748,6 +749,54 @@ void	Server::_cmdJoin(int clientFd, const IrcMessage& message)
 	for (size_t i = 0; i < channelNames.size(); ++i)
 		this->_joinChannel(clientFd, channelNames[i],
 			i < keys.size() ? keys[i] : "");
+}
+
+void	Server::_cmdKick(int clientFd, const IrcMessage& message)
+{
+	Channel*	channel;
+	int			targetFd;
+	std::string	kickMessage;
+
+	if (message.params.size() < 2)
+	{
+		this->_sendNumeric(clientFd, 461, "KICK :Not enough parameters");
+		return ;
+	}
+	channel = this->_findChannel(message.params[0]);
+	if (!channel)
+	{
+		this->_sendNumeric(clientFd, 403,
+			message.params[0] + " :No such channel");
+		return ;
+	}
+	if (!channel->isMember(clientFd))
+	{
+		this->_sendNumeric(clientFd, 442,
+			channel->getName() + " :You're not on that channel");
+		return ;
+	}
+	if (!channel->isOperator(clientFd))
+	{
+		this->_sendNumeric(clientFd, 482,
+			channel->getName() + " :You're not channel operator");
+		return ;
+	}
+	targetFd = this->_findClientByNickname(message.params[1]);
+	if (targetFd == -1 || !channel->isMember(targetFd))
+	{
+		this->_sendNumeric(clientFd, 441, message.params[1] + " "
+			+ channel->getName() + " :They aren't on that channel");
+		return ;
+	}
+
+	kickMessage = ":" + this->_hostmaskOf(clientFd) + " KICK "
+		+ channel->getName() + " " + this->_nicknameOf(targetFd);
+	if (message.params.size() > 2)
+		kickMessage += " :" + message.params[2];
+	this->_broadcastToChannel(*channel, kickMessage);
+	channel->removeMember(targetFd);
+	if (channel->isEmpty())
+		this->_removeChannel(channel->getName());
 }
 
 void	Server::_joinChannel(int clientFd, const std::string& channelName,
