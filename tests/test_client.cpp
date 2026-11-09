@@ -35,12 +35,15 @@ static bool	testClientInitialStateAndIdentity(void)
 		REQUIRE(client.getFD() == sockets[0]);
 		REQUIRE(client.getUsername().empty());
 		REQUIRE(client.getNickname().empty());
+		REQUIRE(client.getRealName().empty());
 		REQUIRE(!client.isPasswordAccepted());
 		REQUIRE(!client.isRegistered());
 		REQUIRE(client.setUsername("alice"));
 		REQUIRE(client.getUsername() == "alice");
 		REQUIRE(client.setNickname("Alice"));
 		REQUIRE(client.getNickname() == "Alice");
+		client.setRealName("Alice Example");
+		REQUIRE(client.getRealName() == "Alice Example");
 	}
 	close(sockets[1]);
 	return (true);
