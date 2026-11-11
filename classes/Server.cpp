@@ -2,12 +2,26 @@
 #include <iomanip>
 #include <cctype>
 #include <fstream>
+#include <limits>
 
 namespace
 {
 	const size_t		kMaxLineLength = 512;
 	const int			kPollTimeoutMs = 1000;
 	const std::string	kServerName("42_ircserv");
+
+	struct ChannelModeChange
+	{
+		char		mode;
+		bool		adding;
+		std::string	parameter;
+		int			targetFd;
+		size_t		limit;
+
+		ChannelModeChange(void)
+		: mode('\0'), adding(true), targetFd(-1), limit(0)
+		{}
+	};
 
 	std::string	toUpper(std::string text)
 	{
@@ -526,6 +540,7 @@ void	Server::_registerCommands(void)
 	this->_registerCommand("QUIT", &Server::_cmdQuit, false);
 	this->_registerCommand("JOIN", &Server::_cmdJoin, true);
 	this->_registerCommand("PRIVMSG", &Server::_cmdPrivmsg, true);
+	this->_registerCommand("MODE", &Server::_cmdMode, true);
 	this->_registerCommand("TOPIC", &Server::_cmdTopic, true);
 	this->_registerCommand("KICK", &Server::_cmdKick, true);
 	this->_registerCommand("INVITE", &Server::_cmdInvite, true);
@@ -751,6 +766,245 @@ void	Server::_cmdJoin(int clientFd, const IrcMessage& message)
 	for (size_t i = 0; i < channelNames.size(); ++i)
 		this->_joinChannel(clientFd, channelNames[i],
 			i < keys.size() ? keys[i] : "");
+}
+
+void	Server::_cmdMode(int clientFd, const IrcMessage& message)
+{
+	Channel*					channel;
+	std::vector<ChannelModeChange>	changes;
+	ChannelModeChange				change;
+	std::string						modeString;
+	std::string						changedModes;
+	std::string						changedParams;
+	std::string						currentSign;
+	std::string						modeParam;
+	std::string						modeChar;
+	size_t							paramIndex;
+	size_t							limit;
+	size_t							digit;
+	bool							adding;
+	bool							modeChanged;
+
+	if (message.params.empty())
+	{
+		this->_sendNumeric(clientFd, 461, "MODE :Not enough parameters");
+		return ;
+	}
+	channel = this->_findChannel(message.params[0]);
+	if (!channel)
+	{
+		this->_sendNumeric(clientFd, 403,
+			message.params[0] + " :No such channel");
+		return ;
+	}
+	if (message.params.size() == 1)
+	{
+		this->_sendNumeric(clientFd, 324,
+			channel->getName() + " " + channel->getModeString());
+		return ;
+	}
+	if (!channel->isMember(clientFd))
+	{
+		this->_sendNumeric(clientFd, 442,
+			channel->getName() + " :You're not on that channel");
+		return ;
+	}
+	if (!channel->isOperator(clientFd))
+	{
+		this->_sendNumeric(clientFd, 482,
+			channel->getName() + " :You're not channel operator");
+		return ;
+	}
+
+	modeString = message.params[1];
+	paramIndex = 2;
+	adding = true;
+	for (size_t i = 0; i < modeString.size(); ++i)
+	{
+		if (modeString[i] == '+')
+		{
+			adding = true;
+			continue ;
+		}
+		if (modeString[i] == '-')
+		{
+			adding = false;
+			continue ;
+		}
+		modeChar.assign(1, modeString[i]);
+		if (modeString[i] != 'i' && modeString[i] != 't'
+			&& modeString[i] != 'k' && modeString[i] != 'o'
+			&& modeString[i] != 'l')
+		{
+			this->_sendNumeric(clientFd, 472,
+				modeChar + " :is unknown mode char to me");
+			return ;
+		}
+
+		change = ChannelModeChange();
+		change.mode = modeString[i];
+		change.adding = adding;
+		modeParam.clear();
+		if ((modeString[i] == 'k' || modeString[i] == 'o'
+				|| (modeString[i] == 'l' && adding))
+			&& paramIndex < message.params.size())
+		{
+			modeParam = message.params[paramIndex];
+			change.parameter = modeParam;
+			++paramIndex;
+		}
+		else if (modeString[i] == 'k' || modeString[i] == 'o'
+			|| (modeString[i] == 'l' && adding))
+		{
+			this->_sendNumeric(clientFd, 461, "MODE :Not enough parameters");
+			return ;
+		}
+		if (modeString[i] == 'k')
+		{
+			if (modeParam.empty())
+			{
+				this->_sendNumeric(clientFd, 461,
+					"MODE :Not enough parameters");
+				return ;
+			}
+		}
+		else if (modeString[i] == 'o')
+		{
+			if (modeParam.empty())
+			{
+				this->_sendNumeric(clientFd, 461,
+					"MODE :Not enough parameters");
+				return ;
+			}
+			change.targetFd = this->_findClientByNickname(modeParam);
+			if (change.targetFd == -1)
+			{
+				this->_sendNumeric(clientFd, 401,
+					modeParam + " :No such nick");
+				return ;
+			}
+			if (!channel->isMember(change.targetFd))
+			{
+				this->_sendNumeric(clientFd, 441, modeParam + " "
+					+ channel->getName() + " :They aren't on that channel");
+				return ;
+			}
+		}
+		else if (modeString[i] == 'l' && adding)
+		{
+			if (modeParam.empty())
+			{
+				this->_sendNumeric(clientFd, 461,
+					"MODE :Invalid channel limit");
+				return ;
+			}
+			limit = 0;
+			for (size_t j = 0; j < modeParam.size(); ++j)
+			{
+				if (!std::isdigit(static_cast<unsigned char>(modeParam[j])))
+				{
+					this->_sendNumeric(clientFd, 461,
+						"MODE :Invalid channel limit");
+					return ;
+				}
+				digit = static_cast<size_t>(modeParam[j] - '0');
+				if (limit > (std::numeric_limits<size_t>::max() - digit) / 10)
+				{
+					this->_sendNumeric(clientFd, 461,
+						"MODE :Invalid channel limit");
+					return ;
+				}
+				limit = limit * 10 + digit;
+			}
+			if (limit == 0)
+			{
+				this->_sendNumeric(clientFd, 461,
+					"MODE :Invalid channel limit");
+				return ;
+			}
+			change.limit = limit;
+		}
+		changes.push_back(change);
+	}
+
+	currentSign.clear();
+	changedModes.clear();
+	changedParams.clear();
+	for (size_t i = 0; i < changes.size(); ++i)
+	{
+		change = changes[i];
+		modeChanged = false;
+		if (change.mode == 'i')
+		{
+			modeChanged = (channel->isInviteOnly() != change.adding);
+			if (modeChanged)
+				channel->setInviteOnly(change.adding);
+		}
+		else if (change.mode == 't')
+		{
+			modeChanged = (channel->isTopicRestricted() != change.adding);
+			if (modeChanged)
+				channel->setTopicRestricted(change.adding);
+		}
+		else if (change.mode == 'k')
+		{
+			if (change.adding)
+			{
+				modeChanged = (!channel->hasKey()
+					|| channel->getKey() != change.parameter);
+				if (modeChanged)
+					channel->setKey(change.parameter);
+			}
+			else
+			{
+				modeChanged = channel->hasKey();
+				if (modeChanged)
+					channel->setKey("");
+			}
+		}
+		else if (change.mode == 'o')
+		{
+			modeChanged = (channel->isOperator(change.targetFd) != change.adding);
+			if (modeChanged)
+			{
+				if (change.adding)
+					channel->addOperator(change.targetFd);
+				else
+					channel->removeOperator(change.targetFd);
+			}
+		}
+		else if (change.mode == 'l')
+		{
+			if (change.adding)
+			{
+				modeChanged = (channel->getLimit() != change.limit);
+				if (modeChanged)
+					channel->setLimit(change.limit);
+			}
+			else
+			{
+				modeChanged = (channel->getLimit() != 0);
+				if (modeChanged)
+					channel->setLimit(0);
+			}
+		}
+		if (modeChanged)
+		{
+			if (currentSign != (change.adding ? "+" : "-"))
+			{
+				currentSign = change.adding ? "+" : "-";
+				changedModes += currentSign;
+			}
+			changedModes += change.mode;
+			if (change.mode == 'k' || change.mode == 'o'
+				|| (change.mode == 'l' && change.adding))
+				changedParams += " " + change.parameter;
+		}
+	}
+	if (!changedModes.empty())
+		this->_broadcastToChannel(*channel, ":" + this->_hostmaskOf(clientFd)
+			+ " MODE " + channel->getName() + " " + changedModes
+			+ changedParams);
 }
 
 void	Server::_cmdTopic(int clientFd, const IrcMessage& message)
