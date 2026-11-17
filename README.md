@@ -87,10 +87,12 @@ The server may report an error if the arguments are invalid, the port is unavail
 ### Makefile Commands
 
 ```bash
-make        # Compile the project
-make clean  # Remove object files
-make fclean # Remove object files and the executable
-make re     # Rebuild the project
+make        		# Compile the project
+make run			# Compile and run the project
+make run_valgrind	# Compile and run the project in Valgrind
+make clean  		# Remove object files
+make fclean 		# Remove object files and the executable
+make re     		# Rebuild the project
 ```
 
 ## Resources
@@ -133,15 +135,12 @@ Their use included:
 
 AI-generated suggestions were used as guidance rather than treated as authoritative solutions. Implementation decisions, testing, and verification against the project subject remain the responsibility of the project authors.
 
-## Project Status
-
-This project is under development. Implemented features and supported IRC commands will be documented here as they are completed and tested.
-
 ## Additional Documentation
 
 - [How IRC server works](additional_docs/HowIrcServerWorks.md)
 - [IRC Protocol](additional_docs/IrcProtocol.md)
 - [IRC Layout](additional_docs/IrcLayout.md)
+- [HexChat / netcat Quick Reference Guide](additional_docs/HexChatNetcatGuide.md)
 
 ## Authors
 

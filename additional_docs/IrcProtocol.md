@@ -16,9 +16,7 @@ All IRC messages are text lines ending with CRLF (`\r\n`).
 
 ```
 :nick!user@host PRIVMSG #channel :Hello world
-:irc.server.net NOTICE nick :Server notice
 :Alessandro JOIN #channel
-NOTICE AUTH :*** Looking up your hostname...
 nick: PASS secret
 USER Alessandro 0 * :Alessandro
 PING :irc.server.net
@@ -36,7 +34,6 @@ The leading `:` on the prefix is optional when the client sends the message, but
 | `JOIN` | client→server / broadcast | `JOIN #channel` or `JOIN #ch1,#ch2` | Join one or more channels |
 | `PART` | client→server / broadcast | `PART #channel :Reason` | Leave channel |
 | `PRIVMSG` | bidirectional | `PRIVMSG target :message` | Private or channel message |
-| `NOTICE` | bidirectional | `NOTICE target :message` | Server/client notice (no auto-reply) |
 | `QUIT` | broadcast | `QUIT :Reason` | Disconnect message |
 | `KICK` | server→client | `KICK #channel nick :reason` | Remove user from channel |
 | `TOPIC` | bidirectional | `TOPIC #channel :new topic` | Get/set channel topic |
@@ -45,7 +42,6 @@ The leading `:` on the prefix is optional when the client sends the message, but
 | `INVITE` | server→client | `INVITE nick #channel` | Invite to channel |
 | `PING` | bidirectional | `PING :server` | Keepalive probe |
 | `PONG` | bidirectional | `PONG :server` | Keepalive response |
-| `ERROR` | server→client | `ERROR :msg` | Terminate connection |
 
 ## Numeric Replies (Server Responses)
 
@@ -57,9 +53,6 @@ Numeric replies come as commands in the form `:server 001 nick :message`. Here a
 | `002` | RPL_YOURHOST | Host info |
 | `003` | RPL_CREATED | Server creation time |
 | `004` | RPL_MYINFO | Server version/mode info |
-| `251` | LUSERS | User count |
-| `255` | LUSERS | Client count |
-| `311` | WHOIS | WHOIS start (nick, user, host) |
 | `332` | RPL_TOPIC | Current topic |
 | `353` | RPL_NAMREPLY | Channel member list |
 | `366` | END_OF_NAMES | End of NAMES list |
@@ -69,11 +62,11 @@ Numeric replies come as commands in the form `:server 001 nick :message`. Here a
 | `464` | ERR_PASSWDMISMATCH | Wrong password |
 | `471` | ERR_CHANNELISFULL | Channel full |
 | `473` | INVITEONLY | Channel invite-only |
-| `474` | BANNEDFROMCHAN | You're banned |
 | `475` | BADCHANNELKEY | Wrong key |
-| `530` | ERR_NOTLOGGEDIN | Not logged in |
 
 Numbers below 400 are generally success/replies; 400+ are errors.
+
+A full list for reference can be found [here](https://www.irchelp.org/protocol/rfc/chapter6.html)
 
 ## Special Cases
 
