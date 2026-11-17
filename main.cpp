@@ -1,49 +1,43 @@
-#include <iostream>
 #include <cstdlib>
-#include "includes/Server.hpp"
-#include "includes/Utils.hpp"
+#include <iostream>
+#include "Server.hpp"
 
-int main(int ac, char **av)
+int	main(int argc, char** argv)
 {
-	int port;
-	std::string passwd;
+	char*		end;
+	long		port;
+	std::string	password;
 
-	if (ac != 3)
+	if (argc != 3)
 	{
-		error(INPUT, "Usage: ./ircserv <port> <password>");
-		return (EXIT_FAILURE);
+		std::cerr << "usage: ./ircserv <port> <password>\n";
+		return (1);
 	}
-	try
+
+	port = std::strtol(argv[1], &end, 10);
+	if (*argv[1] == '\0' || *end != '\0' || port < 1 || port > 65535)
 	{
-		port = convert_to_int(av[1]);
-		passwd = av[2];
-		if (port < 1 || port > 65535)
-		{
-			error(VALIDATION, "Port must be between 1 - 65535");
-			return (EXIT_FAILURE);
-		}
-		if (passwd.empty())
-		{
-			error(VALIDATION, "Password cannot be empty");
-			return (EXIT_FAILURE);
-		}
+		std::cerr << "error: invalid port (1-65535)\n";
+		return (1);
 	}
-	catch (const std::exception &e)
+	password = argv[2];
+	if (password.empty())
 	{
-		error(VALIDATION, e.what());
-		return (EXIT_FAILURE);
+		std::cerr << "error: empty password\n";
+		return (1);
 	}
 
 	Server::setupSignals();
+
 	try
 	{
-		Server server(port, passwd);
+		Server	server(static_cast<int>(port), password);
 		server.run();
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
-		error(NETWORK, e.what());
-		return (EXIT_FAILURE);
+		std::cerr << "fatal: " << e.what() << "\n";
+		return (1);
 	}
-	return (EXIT_SUCCESS);
+	return (0);
 }
