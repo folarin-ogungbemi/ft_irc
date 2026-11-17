@@ -74,6 +74,14 @@ namespace
 		return (escaped.str());
 	}
 
+	std::string	toString(size_t number)
+	{
+		std::ostringstream	text;
+
+		text << number;
+		return (text.str());
+	}
+
 	std::vector<std::string>	splitOnCommas(const std::string& text)
 	{
 		std::vector<std::string>	items;
@@ -544,6 +552,8 @@ void	Server::_registerCommands(void)
 	this->_registerCommand("TOPIC", &Server::_cmdTopic, true);
 	this->_registerCommand("KICK", &Server::_cmdKick, true);
 	this->_registerCommand("INVITE", &Server::_cmdInvite, true);
+	this->_registerCommand("LIST", &Server::_cmdList, true);
+	this->_registerCommand("WHO",  &Server::_cmdWho,  true);
 }
 
 void	Server::_registerCommand(const std::string& name, CommandHandler handler, bool requiresRegistration)
@@ -1328,6 +1338,111 @@ void	Server::_cmdPrivmsg(int clientFd, const IrcMessage& message)
 					+ " :" + message.params[1]);
 		}
 	}
+}
+
+void	Server::_cmdList(int clientFd, const IrcMessage& message)
+{
+	std::map<std::string, Channel*>::const_iterator	channelIt;
+	std::vector<std::string>						channelNames;
+	Channel*										channel;
+
+	this->_sendNumeric(clientFd, 321, "Channel :Users  Name");
+	if (message.params.empty())
+	{
+		for (channelIt = this->_channelsByName.begin();
+			channelIt != this->_channelsByName.end(); ++channelIt)
+			this->_sendListEntry(clientFd, *channelIt->second);
+	}
+	else
+	{
+		channelNames = splitOnCommas(message.params[0]);
+		for (size_t i = 0; i < channelNames.size(); ++i)
+		{
+			channel = this->_findChannel(channelNames[i]);
+			if (channel)
+				this->_sendListEntry(clientFd, *channel);
+		}
+	}
+	this->_sendNumeric(clientFd, 323, ":End of /LIST");
+}
+
+void	Server::_sendListEntry(int clientFd, const Channel& channel)
+{
+	this->_sendNumeric(clientFd, 322, channel.getName() + " "
+		+ toString(channel.size()) + " :" + channel.getTopic());
+}
+
+void	Server::_cmdWho(int clientFd, const IrcMessage& message)
+{
+	std::string									mask("*");
+	Channel*									channel;
+	int											targetFd;
+	std::map<int, Client*>::const_iterator		memberIt;
+	std::map<int, Client*>::const_iterator		clientIt;
+	std::map<int, Handshake>::const_iterator	handshakeIt;
+
+	if (!message.params.empty() && !message.params[0].empty())
+		mask = message.params[0];
+
+	if (mask[0] == '#' || mask[0] == '&')
+	{
+		channel = this->_findChannel(mask);
+		if (channel)
+			for (memberIt = channel->getMembers().begin();
+				memberIt != channel->getMembers().end(); ++memberIt)
+				this->_sendWhoReply(clientFd, channel, memberIt->first);
+	}
+	else if (mask == "*" || mask == "0")
+	{
+		for (clientIt = this->_clientsByFd.begin();
+			clientIt != this->_clientsByFd.end(); ++clientIt)
+		{
+			handshakeIt = this->_handshakes.find(clientIt->first);
+			if (handshakeIt != this->_handshakes.end()
+				&& handshakeIt->second.isRegistered)
+				this->_sendWhoReply(clientFd,
+					this->_findFirstChannelOf(clientIt->first), clientIt->first);
+		}
+	}
+	else
+	{
+		targetFd = this->_findClientByNickname(mask);
+		if (targetFd != -1)
+			this->_sendWhoReply(clientFd,
+				this->_findFirstChannelOf(targetFd), targetFd);
+	}
+	this->_sendNumeric(clientFd, 315, mask + " :End of /WHO list.");
+}
+
+void	Server::_sendWhoReply(int requesterFd, const Channel* channel, int targetFd)
+{
+	std::map<int, Client*>::const_iterator		clientIt;
+	std::map<int, Handshake>::const_iterator	handshakeIt;
+	std::string									flags("H");
+
+	clientIt = this->_clientsByFd.find(targetFd);
+	handshakeIt = this->_handshakes.find(targetFd);
+	if (clientIt == this->_clientsByFd.end()
+		|| handshakeIt == this->_handshakes.end())
+		return ;
+	if (channel && channel->isOperator(targetFd))
+		flags += "@";
+	this->_sendNumeric(requesterFd, 352,
+		(channel ? channel->getName() : std::string("*")) + " "
+		+ clientIt->second->getUsername() + " " + handshakeIt->second.hostname
+		+ " " + kServerName + " " + clientIt->second->getNickname()
+		+ " " + flags + " :0 " + handshakeIt->second.realName);
+}
+
+Channel*	Server::_findFirstChannelOf(int clientFd) const
+{
+	std::map<std::string, Channel*>::const_iterator	channelIt;
+
+	for (channelIt = this->_channelsByName.begin();
+		channelIt != this->_channelsByName.end(); ++channelIt)
+		if (channelIt->second->isMember(clientFd))
+			return (channelIt->second);
+	return (NULL);
 }
 
 void	Server::_cleanup(void)
