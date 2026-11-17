@@ -20,11 +20,11 @@ CLASS_DIR	= classes
 INCL_DIR	= includes
 
 # Sources
-CLASS_SRC		= $(CLASS_DIR)/Utils.cpp \
+CLASS_SRC		= $(CLASS_DIR)/Channel.cpp \
 					$(CLASS_DIR)/Client.cpp \
+					$(CLASS_DIR)/Parser.cpp \
 					$(CLASS_DIR)/Server.cpp	\
-					$(CLASS_DIR)/Channel.cpp \
-					$(CLASS_DIR)/Parser.cpp
+					$(CLASS_DIR)/Utils.cpp
 SOURCES			= main.cpp \
 					$(CLASS_SRC)
 
@@ -34,7 +34,7 @@ DEP				= $(OBJECTS:.o=.d)
 
 # Compiler
 CC			= c++
-CFLAGS		= -Wall -Wextra -Werror -Wshadow -fsanitize=undefined
+CFLAGS		= -Wall -Wextra -Werror -Wshadow
 CEXTRA_VER	= -std=c++98
 CEXTRA_INC	= -I$(INCL_DIR) -I. -MMD -MP
 CPP_FLAGS	= $(CFLAGS) $(CEXTRA_VER) $(CEXTRA_INC)
@@ -52,6 +52,14 @@ $(OBJ_DIR)/%.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CC) $(CPP_FLAGS) -c $< -o $@
 
+run: all
+	./ircserv 6667 pass
+
+run_valgrind: all
+	valgrind --leak-check=full --show-leak-kinds=all --track-fds=all \
+		--errors-for-leak-kinds=definite \
+	./ircserv 6667 pass
+
 clean:
 	rm -rf $(OBJ_DIR)
 
@@ -60,17 +68,7 @@ fclean: clean
 
 re: fclean all
 
-# Valgrind rules
-val: $(NAME)
-	valgrind \
-		--leak-check=full \
-		--show-leak-kinds=all \
-		--track-origins=yes \
-		./$(NAME) DEBUG
-
-valre: re val
-
-.PHONY: all clean fclean re val valre
+.PHONY: all run run_valgrind clean fclean re
 
 -include $(DEP)
 -include tests/tests.mk

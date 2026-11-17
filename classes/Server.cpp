@@ -1309,7 +1309,7 @@ void	Server::_cmdPrivmsg(int clientFd, const IrcMessage& message)
 			channel = this->_findChannel(targets[i]);
 			if (!channel)
 				this->_sendNumeric(clientFd, 403, targets[i] + " :No such channel");
-			else if (!channel->isMember(clientFd))		/* no external messages */
+			else if (!channel->isMember(clientFd))
 				this->_sendNumeric(clientFd, 404,
 					channel->getName() + " :Cannot send to channel");
 			else
@@ -1340,7 +1340,6 @@ void	Server::_cleanup(void)
 		delete channelIt->second;
 	this->_channelsByName.clear();
 
-	/* clients close their own fd in ~Client() */
 	for (clientIt = this->_clientsByFd.begin();
 		clientIt != this->_clientsByFd.end(); ++clientIt)
 		delete clientIt->second;

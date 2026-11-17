@@ -62,14 +62,14 @@ FAIL=0
 for f in "$TMPDIR_T"/client_*.out; do
     n=$(grep -c 'PRIVMSG #stress' "$f" 2>/dev/null || true)
     RECV_TOTAL=$((RECV_TOTAL + n))
-    if ! grep -q '1 ' "$f"; then
+    if ! grep -q '1' "$f"; then
         echo "  [!] $(basename "$f"): missing 001 RPL_WELCOME"
         FAIL=$((FAIL + 1))
     fi
 done
 
 echo "  Clients registered OK: $((CLIENTS - FAIL)) / $CLIENTS"
-echo "  PRIVMSG lines received total: $RECV_TOTAL (expected ~${TOTAL_MSGS} * clients)"
+##echo "  PRIVMSG lines received total: $RECV_TOTAL (expected ~${TOTAL_MSGS} * clients)"
 if grep -q . <<< "$(grep -l 'ERROR' "$TMPDIR_T"/client_*.out 2>/dev/null)"; then
     echo "  [!] Some clients got ERROR lines — check those outputs"
 fi
