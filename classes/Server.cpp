@@ -544,6 +544,7 @@ void	Server::_registerCommands(void)
 	this->_registerCommand("TOPIC", &Server::_cmdTopic, true);
 	this->_registerCommand("KICK", &Server::_cmdKick, true);
 	this->_registerCommand("INVITE", &Server::_cmdInvite, true);
+	this->_registerCommand("PART", &Server::_cmdPart, true);
 }
 
 void	Server::_registerCommand(const std::string& name, CommandHandler handler, bool requiresRegistration)
@@ -766,6 +767,48 @@ void	Server::_cmdJoin(int clientFd, const IrcMessage& message)
 	for (size_t i = 0; i < channelNames.size(); ++i)
 		this->_joinChannel(clientFd, channelNames[i],
 			i < keys.size() ? keys[i] : "");
+}
+
+void	Server::_cmdPart(int clientFd, const IrcMessage& message)
+{
+	std::vector<std::string>	channelNames;
+	std::string					partMessage;
+	Channel*					channel;
+
+	if (message.params.empty())
+	{
+		this->_sendNumeric(clientFd, 461, "PART :Not enough parameters");
+		return ;
+	}
+	channelNames = splitOnCommas(message.params[0]);
+	if (message.params.size() > 1)
+		partMessage = message.params[1];
+
+	for (size_t i = 0; i < channelNames.size(); ++i)
+	{
+		channel = this->_findChannel(channelNames[i]);
+		if (!channel)
+		{
+			this->_sendNumeric(clientFd, 403,
+				channelNames[i] + " :No such channel");
+			continue ;
+		}
+		if (!channel->isMember(clientFd))
+		{
+			this->_sendNumeric(clientFd, 442,
+				channel->getName() + " :You're not on that channel");
+			continue ;
+		}
+
+		std::string	part = ":" + this->_hostmaskOf(clientFd)
+			+ " PART " + channel->getName();
+		if (!partMessage.empty())
+			part += " :" + partMessage;
+		this->_broadcastToChannel(*channel, part);
+		channel->removeMember(clientFd);
+		if (channel->isEmpty())
+			this->_removeChannel(channel->getName());
+	}
 }
 
 void	Server::_cmdMode(int clientFd, const IrcMessage& message)
