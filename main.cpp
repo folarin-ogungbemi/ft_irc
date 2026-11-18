@@ -1,43 +1,58 @@
 #include <cstdlib>
 #include <iostream>
+#include <new>
+#include <string>
 #include "Server.hpp"
+#include "Utils.hpp"
 
 int	main(int argc, char** argv)
 {
-	char*		end;
-	long		port;
+	int			port;
 	std::string	password;
 
 	if (argc != 3)
 	{
-		std::cerr << "usage: ./ircserv <port> <password>\n";
-		return (1);
+		error(INPUT, "Usage: ./ircserv <port> <password>");
+		return (EXIT_FAILURE);
 	}
-
-	port = std::strtol(argv[1], &end, 10);
-	if (*argv[1] == '\0' || *end != '\0' || port < 1 || port > 65535)
-	{
-		std::cerr << "error: invalid port (1-65535)\n";
-		return (1);
-	}
-	password = argv[2];
-	if (password.empty())
-	{
-		std::cerr << "error: empty password\n";
-		return (1);
-	}
-
-	Server::setupSignals();
 
 	try
 	{
-		Server	server(static_cast<int>(port), password);
-		server.run();
+		port = convert_to_int(argv[1]);
 	}
 	catch (const std::exception& e)
 	{
-		std::cerr << "fatal: " << e.what() << "\n";
-		return (1);
+		error(VALIDATION, e.what());
+		return (EXIT_FAILURE);
 	}
-	return (0);
+	if (port < 1 || port > 65535)
+	{
+		error(VALIDATION, "Port must be between 1 and 65535");
+		return (EXIT_FAILURE);
+	}
+
+	password = argv[2];
+	if (password.empty())
+	{
+		error(VALIDATION, "Password cannot be empty");
+		return (EXIT_FAILURE);
+	}
+
+	Server::setupSignals();
+	try
+	{
+		Server	server(port, password);
+		server.run();
+	}
+	catch (const std::bad_alloc&)
+	{
+		error(SYSTEM, "Out of memory");
+		return (EXIT_FAILURE);
+	}
+	catch (const std::exception& e)
+	{
+		error(NETWORK, e.what());
+		return (EXIT_FAILURE);
+	}
+	return (EXIT_SUCCESS);
 }

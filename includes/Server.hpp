@@ -115,12 +115,14 @@ private:
 	void		_cmdTopic(int clientFd, const IrcMessage& message);
 	void		_cmdKick(int clientFd, const IrcMessage& message);
 	void		_cmdInvite(int clientFd, const IrcMessage& message);
+	void		_cmdPart(int clientFd, const IrcMessage& message);
 	void		_cmdList(int clientFd, const IrcMessage& message);
 	void		_sendListEntry(int clientFd, const Channel& channel);
 	void		_cmdWho(int clientFd, const IrcMessage& message);
 	void		_sendWhoReply(int requesterFd, const Channel* channel, int targetFd);
 
-Channel*  _findFirstChannelOf(int clientFd) const;
+Channel*  		_findFirstChannelOf(int clientFd) const;
+
 public:
 	Server(int port, const std::string& password);
 	~Server();
