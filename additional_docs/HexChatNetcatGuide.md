@@ -74,7 +74,7 @@ printf 'PASS password\r\nNICK cli_tester\r\nUSER tester 0 * :CLI Tester\r\nJOIN 
 ### Interactive session
 
 ```bash
-nc 127.0.0.1 6667
+nc -C -N 127.0.0.1 6667
 PASS password
 NICK cli_tester
 USER tester 0 * :CLI Tester
