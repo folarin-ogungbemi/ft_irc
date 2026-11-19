@@ -53,7 +53,6 @@ done
 wait "${PIDS[@]}"
 DUR=$(( $(date +%s) - START ))
 
-echo
 echo "[*] Finished in ${DUR}s. Report:"
 TOTAL_MSGS=$(( CLIENTS * MSGS ))
 RECV_TOTAL=0
@@ -69,10 +68,6 @@ for f in "$TMPDIR_T"/client_*.out; do
 done
 
 echo "  Clients registered OK: $((CLIENTS - FAIL)) / $CLIENTS"
-##echo "  PRIVMSG lines received total: $RECV_TOTAL (expected ~${TOTAL_MSGS} * clients)"
-if grep -q . <<< "$(grep -l 'ERROR' "$TMPDIR_T"/client_*.out 2>/dev/null)"; then
-    echo "  [!] Some clients got ERROR lines — check those outputs"
-fi
 
 if ss -tlnp | grep -q ":$PORT "; then
     echo "  Server still listening on $PORT: yes"

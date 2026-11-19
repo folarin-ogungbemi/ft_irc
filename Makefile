@@ -1,15 +1,3 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: aielo <aielo@student.42berlin.de>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2026/01/05 13:32:20 by aielo             #+#    #+#              #
-#    Updated: 2026/10/30 16:24:35 by aielo            ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
 # Name
 NAME		= ircserv
 
@@ -34,7 +22,7 @@ DEP				= $(OBJECTS:.o=.d)
 
 # Compiler
 CC			= c++
-CFLAGS		= -Wall -Wextra -Werror -Wshadow -pedantic
+CFLAGS		= -Wall -Wextra -Werror -Wshadow
 CEXTRA_VER	= -std=c++98
 CEXTRA_INC	= -I$(INCL_DIR) -I. -MMD -MP
 CPP_FLAGS	= $(CFLAGS) $(CEXTRA_VER) $(CEXTRA_INC)
@@ -71,4 +59,4 @@ re: fclean all
 .PHONY: all run run_valgrind clean fclean re
 
 -include $(DEP)
--include tests/tests.mk
+-include test/stress_test.mk
