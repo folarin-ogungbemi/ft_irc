@@ -34,7 +34,7 @@ DEP				= $(OBJECTS:.o=.d)
 
 # Compiler
 CC			= c++
-CFLAGS		= -Wall -Wextra -Werror -Wshadow
+CFLAGS		= -Wall -Wextra -Werror -Wshadow -pedantic
 CEXTRA_VER	= -std=c++98
 CEXTRA_INC	= -I$(INCL_DIR) -I. -MMD -MP
 CPP_FLAGS	= $(CFLAGS) $(CEXTRA_VER) $(CEXTRA_INC)
